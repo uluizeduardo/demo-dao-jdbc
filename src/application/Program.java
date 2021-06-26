@@ -1,6 +1,7 @@
 package application;
 
 import db.DB;
+import model.Department;
 
 import java.sql.Connection;
 
