@@ -6,10 +6,7 @@ import model.dao.SellerDao;
 import model.entities.Department;
 import model.entities.Seller;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,9 +22,46 @@ public class SellerDaoJDBC implements SellerDao {
         this.conect = conect;
     }
 
+    //Método inserir dados no banco de dados
     @Override
     public void insert(Seller obj) {
+        PreparedStatement statement = null;
+        try {
+        //Insert no banco de dados
+            statement = conect.prepareStatement(
+                    "INSERT INTO seller "
+                            + "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+                            + "VALUES "
+                            + "(?, ?, ?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS);//Retorna o id do vendedor
 
+            //Setando as configurações que vai oculpar as interrogações no sql
+            statement.setString(1, obj.getName());
+            statement.setString(2, obj.getEmail());
+            statement.setDate(3, new Date(obj.getBirthDate().getTime()));
+            statement.setDouble(4, obj.getBaseSalary());
+            statement.setInt(5, obj.getDepartment().getId());
+
+            int linhasAfetadas = statement.executeUpdate();//Variável criada para recebe a execução da query do statement
+
+            if (linhasAfetadas > 0) {//Se linhasAfetadas for > 0 significa que inseriu
+                ResultSet resultSet = statement.getGeneratedKeys();
+                if (resultSet.next()) {
+                    int id = resultSet.getInt(1);//pega o id gerado na posição 1 ou seja na primeira coluna da tabela
+                    obj.setId(id);//Atribuindo o id ao objeto obj
+                }
+                DB.closeResultSet(resultSet);
+            }
+            else {
+                throw new DbExceptions("Erro inesperado, nenhuma linha afetada");
+            }
+        }
+        catch (SQLException ex){
+            throw new DbExceptions(ex.getMessage());
+        }
+        finally {
+            DB.closeStatement(statement);
+        }
     }
 
     @Override
@@ -52,8 +86,8 @@ public class SellerDaoJDBC implements SellerDao {
                     + "ON seller.DepartmentId = department.Id "
                     + "WHERE seller.Id = ?");
 
-            statement.setInt(1, id);
-            resultSet = statement.executeQuery();
+            statement.setInt(1, id);//Valor atribuido a ? do código sql
+            resultSet = statement.executeQuery();//resultSet recebe a execução da query do statement
             if(resultSet.next()){
                 Department department = instantiateDepartment(resultSet);//Instância do departamento
 
