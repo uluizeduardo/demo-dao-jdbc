@@ -94,8 +94,24 @@ public class SellerDaoJDBC implements SellerDao {
 
     }
 
+    //Método que deleta dados no banco de dados
     @Override
     public void deleteById(Integer id) {
+        PreparedStatement statement = null;
+        try{
+            statement = conect.prepareStatement(
+                    "DELETE FROM seller "
+                    + "WHERE id = ?");
+
+            statement.setInt(1, id);
+            statement.executeUpdate();
+        }
+        catch (SQLException ex){
+            throw new DbExceptions(ex.getMessage());
+        }
+        finally {
+            DB.closeStatement(statement);
+        }
 
     }
 
@@ -148,7 +164,7 @@ public class SellerDaoJDBC implements SellerDao {
     private Department instantiateDepartment(ResultSet resultSet) throws SQLException {
         Department department = new Department();
         department.setId(resultSet.getInt("DepartmentId"));
-        department.setNome(resultSet.getString("DepName"));
+        department.setName(resultSet.getString("DepName"));
         return department;
     }
 

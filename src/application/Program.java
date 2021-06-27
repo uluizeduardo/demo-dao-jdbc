@@ -7,9 +7,12 @@ import model.entities.Seller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 
 public class Program {
     public static void main(String[] args) {
+
+        Scanner scan = new Scanner(System.in);
 
 //        Connection conect = DB.getConnection();
 //        DB.closeConnection();
@@ -48,6 +51,12 @@ public class Program {
         seller.setName("Martha Waine");
         sellerDao.update(seller);
         System.out.println("Update Completed!");
+
+        System.out.println("\n=========== TESTE 5: Seller Delete ===========");
+        System.out.println("Enter id for delete test: ");
+        int id = scan.nextInt();
+        sellerDao.deleteById(id);
+        System.out.println("Delete completede!");
 
     }
 }
