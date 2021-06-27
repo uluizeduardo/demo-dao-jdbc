@@ -95,7 +95,40 @@ public class SellerDaoJDBC implements SellerDao {
 
     @Override
     public List<Seller> findAll() {
-        return null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try{
+            //Busca no banco de dados
+            statement = conect.prepareStatement("SELECT seller.*,department.Name as DepName "
+                    + "FROM seller INNER JOIN department "
+                    + "ON seller.DepartmentId = department.Id "
+                    + "ORDER BY Name");
+
+            resultSet = statement.executeQuery();//resultSet recebe a execução da query do statement
+
+            List<Seller> list = new ArrayList<>();//Lista de Funcionários
+            Map<Integer, Department> map = new HashMap<>();//Map para fazer uma verificação na lista
+
+            while (resultSet.next()){//enquanto tiver valores
+                Department department = map.get(resultSet.getInt("DepartmentId"));//Instância do departamento recebendo o map
+
+                if (department == null){
+                    department = instantiateDepartment(resultSet);
+                    map.put(resultSet.getInt("DepartmentId"), department);//Salvando departamento no map
+                }
+
+                Seller seller = instantiateSeller(resultSet, department);//Instância do vendedor
+                list.add(seller);//Adicionando os dados na lista de vendedores
+            }
+            return list;//retorna a lista de vendedores
+        }
+        catch (SQLException ex){
+            throw new DbExceptions(ex.getMessage());
+        }
+        finally {
+            DB.closeStatement(statement);
+            DB.closeResultSet(resultSet);
+        }
     }
 
     @Override
@@ -129,7 +162,7 @@ public class SellerDaoJDBC implements SellerDao {
                 Seller seller = instantiateSeller(resultSet, department1);//Instância do vendedor
                 list.add(seller);//Adicionando os dados na lista de vendedores
             }
-            return list;
+            return list;//retorna a lista de vendedores
         }
         catch (SQLException ex){
             throw new DbExceptions(ex.getMessage());
