@@ -64,8 +64,33 @@ public class SellerDaoJDBC implements SellerDao {
         }
     }
 
+    //Método Atualizar dados no banco de dados
     @Override
     public void update(Seller obj) {
+        PreparedStatement statement = null;
+        try {
+            //Update no banco de dados
+            statement = conect.prepareStatement(
+                    "UPDATE seller "
+                    + "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? "
+                    + "WHERE Id = ?");
+
+            //Setando as configurações que vai oculpar as interrogações no sql
+            statement.setInt(1, obj.getId());
+            statement.setString(2, obj.getName());
+            statement.setDate(3, new Date(obj.getBirthDate().getTime()));
+            statement.setDouble(4, obj.getBaseSalary());
+            statement.setInt(5, obj.getDepartment().getId());
+            statement.setInt(6, obj.getId());
+
+            statement.executeUpdate();//statment executando a query
+        }
+        catch (SQLException ex){
+            throw new DbExceptions(ex.getMessage());
+        }
+        finally {
+            DB.closeStatement(statement);
+        }
 
     }
 
