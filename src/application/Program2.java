@@ -4,7 +4,6 @@ import model.dao.DaoFactory;
 import model.dao.DepartmentDao;
 import model.entities.Department;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
